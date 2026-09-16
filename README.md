@@ -150,3 +150,15 @@ correspond to its numbered hard cases.
 The corpus and pilot are published as a dataset:
 **[huggingface.co/datasets/kishormorol/banglachhanda](https://huggingface.co/datasets/kishormorol/banglachhanda)**.
 The dataset card leads with the warning that none of its labels are human-checked.
+
+The Hub copy is a separate store, so it drifts the moment the corpus is rebuilt
+here. `hf/README.md` is the card under version control, and:
+
+```
+.venv/bin/python corpus/sync_hf.py --check   # compare; no token needed
+.venv/bin/python corpus/sync_hf.py           # upload whatever differs
+```
+
+CI runs the `--check` half on every push that touches the corpus, the card or the
+guideline, and on every release. It holds no credential and cannot fix drift — it
+fails and tells a human to run the sync.

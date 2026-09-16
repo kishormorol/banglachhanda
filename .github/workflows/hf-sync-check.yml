@@ -1,0 +1,31 @@
+name: Hub sync check
+
+# The Hugging Face dataset is a separate store from this repo, so it drifts
+# silently whenever the corpus is rebuilt or the card is edited here. This
+# compares the two and fails loudly.
+#
+# Read-only: it fetches the public dataset over HTTPS and holds no credential,
+# so it cannot fix the drift — it tells a human to run `python corpus/sync_hf.py`.
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - "corpus/**.jsonl"
+      - "hf/README.md"
+      - "docs/**"
+      - "CITATION.cff"
+  release:
+    types: [published]
+  workflow_dispatch:
+
+jobs:
+  check:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+      - name: Compare the Hub copy against this repo
+        run: python corpus/sync_hf.py --check
