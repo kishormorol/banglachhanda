@@ -120,6 +120,7 @@ research or in a derived resource, cite it:
 ```bibtex
 @misc{morol2026banglachhanda,
   author       = {Morol, Md Kishor},
+  orcid        = {0000-0002-4468-8260},
   title        = {{BanglaChhanda}: a rule-based scanner and pilot corpus for
                   {Bangla} verse},
   year         = {2026},
@@ -128,6 +129,8 @@ research or in a derived resource, cite it:
   note         = {Code: \url{https://github.com/kishormorol/banglachhanda}}
 }
 ```
+
+Author ORCID: [0000-0002-4468-8260](https://orcid.org/0000-0002-4468-8260).
 
 Please also credit **Bengali Wikisource** for the transcriptions, as the CC BY-SA
 terms of the source text require. The poems themselves are public domain.

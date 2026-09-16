@@ -6,6 +6,7 @@ authors:
   - family-names: Morol
     given-names: Md Kishor
     alias: kishormorol
+    orcid: "https://orcid.org/0000-0002-4468-8260"
 repository-code: "https://github.com/kishormorol/banglachhanda"
 url: "https://huggingface.co/datasets/kishormorol/banglachhanda"
 abstract: >-
