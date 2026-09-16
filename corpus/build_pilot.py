@@ -56,6 +56,10 @@ def stratify(poems: list[dict], target: int, seed: int = 0) -> list[dict]:
     poems, which is technically 300 lines of verse and useless as a sample —
     no spread across poets' forms, and both bands unrepresented. Selection
     within a band is a seeded shuffle so the pilot is reproducible.
+
+    Bands are split by author as well as density. With one poet that changed
+    nothing; with two it stops a pilot coming out as 90% Tagore, which would tell
+    us how the rules do on payar and nothing about looser modern verse.
     """
     scored = [
         {**poem, "closed_density": closed_density(poem["lines"])}
@@ -66,22 +70,29 @@ def stratify(poems: list[dict], target: int, seed: int = 0) -> list[dict]:
 
     third = max(1, len(scored) // 3)
     bands = [scored[:third], scored[third: 2 * third], scored[2 * third:]]
+
+    # One queue per (density band, author), so the round-robin spreads over both.
+    authors = sorted({p.get("author", "unknown") for p in scored})
     rng = random.Random(seed)
+    queues: list[list[dict]] = []
     for band in bands:
-        rng.shuffle(band)
+        for author in authors:
+            queue = [p for p in band if p.get("author", "unknown") == author]
+            rng.shuffle(queue)
+            queues.append(queue)
 
     chosen: list[dict] = []
     count = 0
     i = 0
     ceiling = int(target * 1.1)
-    while count < target and any(bands):
-        band = bands[i % 3]
+    while count < target and any(queues):
+        queue = queues[i % len(queues)]
         i += 1
-        if not band:
+        if not queue:
             continue
-        poem = band.pop(0)
+        poem = queue.pop(0)
         if count + len(poem["lines"]) > ceiling:
-            continue            # would overshoot; try the next band instead
+            continue            # would overshoot; try the next queue instead
         chosen.append(poem)
         count += len(poem["lines"])
     return chosen
@@ -104,6 +115,7 @@ def main() -> None:
             record = to_annotation(line, poem_id=poem["poem_id"], line_no=i, register="unknown")
             record["provenance"] = {
                 "title": poem["title"],
+                "author": poem.get("author", "unknown"),
                 "collection": poem["collection"],
                 "source_url": poem["source_url"],
                 "revision": poem["revision"],
@@ -122,8 +134,12 @@ def main() -> None:
     review = sum(1 for r in records if r["needs_review"])
     densities = [p["closed_density"] for p in chosen]
 
+    by_author = Counter()
+    for r in records:
+        by_author[r["provenance"]["author"]] += 1
     collections = Counter(p["collection"].split(" (")[0] for p in chosen)
     print(f"\npilot: {len(records)} lines from {len(chosen)} poems -> {args.out}")
+    print("  poets:       " + ", ".join(f"{a} ({n} lines)" for a, n in by_author.most_common()))
     print("  collections: " + ", ".join(f"{c} ({n})" for c, n in collections.most_common()))
     print(f"  closed-syllable density: min {min(densities):.2f}  "
           f"median {statistics.median(densities):.2f}  max {max(densities):.2f}")

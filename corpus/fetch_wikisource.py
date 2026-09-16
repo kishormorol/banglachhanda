@@ -52,6 +52,44 @@ def api(params: dict) -> dict:
     raise RuntimeError("unreachable")
 
 
+# Who wrote what, and why the text is free to redistribute. A poet goes in here
+# only once the term has actually run out: Bangladesh and India both give life +
+# 60, so Kazi Nazrul Islam (d. 1976) stays out until 2037, even though Wikisource
+# carries his pre-1931 books as US public domain. This dataset is redistributed
+# under CC BY-SA, so US-only PD is not good enough.
+POETS = [
+    ("রবীন্দ্রনাথ ঠাকুর", "Rabindranath Tagore", 1941),
+    ("জীবনানন্দ দাশ", "Jibanananda Das", 1954),
+]
+PD_TERM_YEARS = 60
+
+
+def attribution(collection: str, today: dt.date | None = None) -> tuple[str, str]:
+    """Return (author, rights) for a collection.
+
+    Raises when the poet is unlisted or still in copyright, rather than writing a
+    rights claim nobody checked — a wrong one here propagates into every record.
+    """
+    today = today or dt.date.today()
+    for fragment, name, died in POETS:
+        if fragment in collection:
+            free_from = died + PD_TERM_YEARS + 1
+            if free_from > today.year:
+                raise ValueError(
+                    f"{name} (d. {died}) is in copyright until {free_from} under "
+                    f"life + {PD_TERM_YEARS}; refusing to fetch {collection!r}"
+                )
+            return name, (
+                f"{name} died {died}; public domain in Bangladesh and India "
+                f"(life + {PD_TERM_YEARS}) since {free_from}. "
+                "Transcription: Bengali Wikisource."
+            )
+    raise ValueError(
+        f"no poet matches {collection!r} — add them to POETS with a death year "
+        "before fetching, so the rights field stays sourced"
+    )
+
+
 def poem_id(title: str) -> str:
     """A stable, readable id: collection leaf + poem title, spaces hyphenated."""
     book, _, leaf = title.partition("/")
@@ -123,6 +161,8 @@ def main() -> None:
     ap.add_argument("--collection", required=True, action="append")
     ap.add_argument("--limit", type=int, default=40, help="poems per collection")
     ap.add_argument("--out", default="corpus/poems.jsonl")
+    ap.add_argument("--append", action="store_true",
+                    help="add to an existing corpus, skipping poems already in it")
     args = ap.parse_args()
 
     out_path = Path(args.out)
@@ -130,11 +170,25 @@ def main() -> None:
     today = dt.date.today().isoformat()
     written = 0
 
-    with out_path.open("w", encoding="utf-8") as fh:
+    seen: set[str] = set()
+    if args.append and out_path.exists():
+        for line in out_path.read_text(encoding="utf-8").splitlines():
+            if line.strip():
+                seen.add(json.loads(line)["poem_id"])
+        print(f"appending to {len(seen)} poems already in {out_path}")
+
+    with out_path.open("a" if args.append else "w", encoding="utf-8") as fh:
         for collection in args.collection:
+            try:
+                author, rights = attribution(collection)
+            except ValueError as exc:
+                print(f"!! skipping: {exc}")
+                continue
             titles = list_subpages(collection, args.limit)
-            print(f"{collection}: {len(titles)} subpages")
+            print(f"{collection}: {len(titles)} subpages ({author})")
             for title in titles:
+                if poem_id(title) in seen:
+                    continue
                 try:
                     lines, revid = poem_lines(title, collection)
                 except Exception as exc:                    # noqa: BLE001
@@ -150,12 +204,13 @@ def main() -> None:
                     "poem_id": poem_id(title),
                     "title": title.split("/")[-1],
                     "collection": collection,
+                    "author": author,
                     "source": "bn.wikisource.org",
                     "source_url": "https://bn.wikisource.org/wiki/"
                     + urllib.parse.quote(title.replace(" ", "_")),
                     "revision": revid,
                     "retrieved": today,
-                    "rights": "Author died 1941; public domain. Transcription: Bengali Wikisource.",
+                    "rights": rights,
                     "lines": lines,
                 }
                 fh.write(json.dumps(record, ensure_ascii=False) + "\n")

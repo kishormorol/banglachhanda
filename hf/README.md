@@ -25,7 +25,7 @@ boundaries, and meter under `অক্ষরবৃত্ত`, `মাত্র�
 > [!IMPORTANT]
 > **This is not gold data.** Every label in `pilot.jsonl` was produced by a
 > rule-based scanner and has **not been checked by a human**. The scanner itself
-> flags **73% of these lines** as needing review, and the annotation guideline it
+> flags **76% of these lines** as needing review, and the annotation guideline it
 > implements has not yet been reviewed by a prosody specialist. Treat this as a
 > pre-annotation draft for annotators to correct — not as ground truth, and not as
 > a benchmark.
@@ -34,14 +34,14 @@ boundaries, and meter under `অক্ষরবৃত্ত`, `মাত্র�
 
 | File | Contents |
 | --- | --- |
-| `data/poems.jsonl` | 81 poems, 3,891 lines, as fetched, with per-poem provenance |
-| `data/pilot.jsonl` | 303 lines from 26 poems, one pre-filled annotation record per line |
+| `data/poems.jsonl` | 153 poems, 7,009 lines, as fetched, with per-poem provenance |
+| `data/pilot.jsonl` | 316 lines from 19 poems, one pre-filled annotation record per line |
 | `docs/annotation-guide-v0.1.html` | the annotation guideline these records follow |
 
 ## Sampling
 
-Poem-sampled, stratified by closed-syllable density into three bands and taken
-round-robin, with a seeded shuffle so the selection reproduces.
+Poem-sampled, stratified by closed-syllable density into three bands **and by
+poet**, taken round-robin, with a seeded shuffle so the selection reproduces.
 
 Whole poems, because scoring a poem's metrical consistency needs its lines
 together. Stratified, because the closed-syllable rule is the only thing that
@@ -50,10 +50,19 @@ in svarabritta, and 1 or 2 in akkharbritta depending on whether it ends a word. 
 line of entirely open syllables reads identically under all three, so a random
 sample would fill up with lines that carry no signal about meter.
 
-Selected lines span closed-syllable density 0.07 to 0.42, across four collections:
-কণিকা (12 poems), কড়ি ও কোমল (9), আকাশ-প্রদীপ (3), পলাতকা (2). আকাশ-প্রদীপ is
-included deliberately — late Tagore, much of it free verse, so the sample contains
-lines that should not scan at all.
+Two poets, both out of copyright: **Rabindranath Tagore** (d. 1941) and
+**Jibanananda Das** (d. 1954). The pilot is 191 lines of Jibanananda and 125 of
+Tagore, spanning closed-syllable density 0.20 to 0.35.
+
+**Kazi Nazrul Islam is deliberately absent.** He died in 1976, so under life + 60
+his work stays in copyright in Bangladesh and India until 2037. Wikisource carries
+his pre-1931 books because they are public domain in the United States; that is not
+enough for a dataset redistributed under CC BY-SA, so the fetcher refuses him by
+design rather than by oversight.
+
+Jibanananda matters here beyond variety: much of his work is loose or free verse,
+where Tagore's কণিকা is rhymed payar throughout. If the rules only worked on
+regular metre, he is where that would show.
 
 ## Record schema
 
@@ -89,11 +98,14 @@ The scanner marks what it is unsure about instead of guessing. Counts across the
 
 | Flag | Lines | Meaning |
 | --- | --- | --- |
-| `conjunct_split` | 175 | a written cluster divided across a syllable boundary |
-| `schwa_medial_uncertain` | 127 | inherent vowel before another inherent vowel — variable, partly dialectal |
-| `final_schwa_kept_after_conjunct` | 83 | `শব্দ` stays shob-do rather than becoming shobd |
-| `phala_kept_in_onset` | 76 | r-phala held in the onset: `আক্রমণ` is a-kro-mon |
-| `y_phala_gemination_check` | 24 | y-phala may geminate; a human decides |
+| `conjunct_split` | 171 | a written cluster divided across a syllable boundary |
+| `schwa_medial_uncertain` | 161 | inherent vowel before another inherent vowel — variable, partly dialectal |
+| `phala_kept_in_onset` | 74 | r-phala held in the onset: `আক্রমণ` is a-kro-mon |
+| `final_schwa_kept_after_conjunct` | 67 | `শব্দ` stays shob-do rather than becoming shobd |
+| `y_phala_gemination_check` | 30 | y-phala may geminate; a human decides |
+
+Per poet the review rate barely moves — 76% for Jibanananda, 74% for Tagore — so
+the rules are not simply falling over on modern verse.
 
 ## Known limitations
 
@@ -107,8 +119,14 @@ The scanner marks what it is unsure about instead of guessing. Counts across the
 - **No prosodic authority is pinned yet.** The matra rules follow the common
   textbook description; authorities differ on exactly the edge cases that decide
   inter-annotator agreement.
-- **One poet, four collections.** Nothing here establishes how the rules behave on
-  Nazrul, Jibanananda, or modern free verse.
+- **Meter proposals are weak evidence.** The foot fitter is too permissive: under
+  svarabritta every syllable is 1 matra, so any line whose syllable count divides by
+  four "fits" exactly, and a deliberately unmetrical line still draws exact fits.
+  `meter.proposed` should be read as a starting guess for an annotator, never as a
+  classification. Tightening it — most obviously by requiring foot boundaries to
+  fall at word boundaries — is open work.
+- **Two poets.** Nothing here establishes how the rules behave on Nazrul (excluded
+  on copyright grounds until 2037), on prose poetry, or on song lyrics.
 
 ## Citing this work
 
