@@ -1,0 +1,39 @@
+{
+  "title": "BanglaChhanda: a rule-based scanner and pilot corpus for Bangla verse",
+  "description": "<p>A rule-based scanner for Bangla verse and a pilot corpus for chhanda (ছন্দ) annotation. The scanner derives syllable structure, matra counts and foot divisions under akkharbritta, matrabritta and svarabritta, flagging the cases where the rules are genuinely uncertain rather than guessing.</p><p>The corpus is 81 public-domain Rabindranath Tagore poems from Bengali Wikisource with per-poem provenance (page URL, revision id, retrieval date), plus a 303-line pilot of pre-filled annotation records.</p><p><strong>The pilot's labels are machine-produced and have not been checked by a human.</strong> The scanner flags 73% of the pilot lines as needing review, and the annotation guideline it implements has not yet been reviewed by a prosody specialist. This is a pre-annotation draft for annotators to correct, not ground truth and not a benchmark.</p><p>Design note: the annotation schema deliberately has no matra field. A closed syllable is worth 2 matra in matrabritta, 1 in svarabritta, and 1 or 2 in akkharbritta depending on position, so storing matra would bake the textbook rules into the data and make them untestable. Structure is annotated; matra is computed.</p>",
+  "upload_type": "software",
+  "license": "cc-by-sa-4.0",
+  "access_right": "open",
+  "creators": [
+    {
+      "name": "Morol, Md Kishor",
+      "orcid": "0000-0002-4468-8260"
+    }
+  ],
+  "keywords": [
+    "Bangla",
+    "Bengali",
+    "prosody",
+    "scansion",
+    "meter",
+    "chhanda",
+    "poetry",
+    "computational literary studies",
+    "low-resource NLP"
+  ],
+  "related_identifiers": [
+    {
+      "identifier": "https://huggingface.co/datasets/kishormorol/banglachhanda",
+      "relation": "isIdenticalTo",
+      "resource_type": "dataset",
+      "scheme": "url"
+    },
+    {
+      "identifier": "https://bn.wikisource.org",
+      "relation": "isDerivedFrom",
+      "resource_type": "dataset",
+      "scheme": "url"
+    }
+  ],
+  "language": "ben"
+}
