@@ -50,6 +50,14 @@ def api(params: dict) -> dict:
     raise RuntimeError("unreachable")
 
 
+def poem_id(title: str) -> str:
+    """A stable, readable id: collection leaf + poem title, spaces hyphenated."""
+    book, _, leaf = title.partition("/")
+    book = book.split(" (")[0].strip()
+    slug = f"{book}-{leaf}".strip("-")
+    return re.sub(r"[\s/]+", "-", slug)
+
+
 def list_subpages(collection: str, limit: int) -> list[str]:
     out: list[str] = []
     cont: dict = {}
@@ -135,8 +143,9 @@ def main() -> None:
                     print(f"  -- empty: {title}")
                     continue
                 record = {
-                    "poem_id": re.sub(r"[^a-z0-9]+", "-", title.lower())[:80].strip("-")
-                    or f"poem-{written}",
+                    # Keep the Bengali: an ASCII slug regex deletes the whole
+                    # title and leaves every poem with a meaningless counter id.
+                    "poem_id": poem_id(title),
                     "title": title.split("/")[-1],
                     "collection": collection,
                     "source": "bn.wikisource.org",
