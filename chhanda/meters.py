@@ -57,11 +57,26 @@ class FootFit:
     feet: list[tuple[int, int]]      # half-open syllable index ranges
     exact: bool
     short_final: int = 0             # matra left over in a short final foot
+    aligned: int = 0                 # internal foot boundaries falling at a word boundary
+    boundaries: int = 0              # internal foot boundaries in total
+
+    @property
+    def alignment(self) -> float:
+        """Share of foot boundaries that coincide with a word boundary.
+
+        Bangla feet tend to break where words break. A boundary may fall inside a
+        word — guideline hard case 9 says so explicitly — but a division that
+        slices through every word is almost certainly arithmetic rather than
+        metre. Without this, any line whose syllable count divides by four fits
+        svarabritta exactly, because every syllable there is worth one matra.
+        """
+        return self.aligned / self.boundaries if self.boundaries else 1.0
 
     @property
     def score(self) -> float:
-        """Exact fits rank first; a short final foot is a mild penalty."""
-        return (1.0 if self.exact else 0.0) - 0.05 * (1 if self.short_final else 0)
+        """Exact first, then how well the feet respect word boundaries."""
+        base = 1.0 if self.exact else 0.0
+        return base + self.alignment - 0.05 * (1 if self.short_final else 0)
 
 
 # Named line patterns. Only the ones this project is confident enough to test
@@ -76,6 +91,13 @@ PATTERNS: dict[str, list[tuple[str, tuple[int, ...]]]] = {
     ],
     SVARABRITTA: [("svarabritta-4", (4, 4, 4, 4))],
 }
+
+
+def _alignment(syllables: list[Syllable], feet: list[tuple[int, int]]) -> tuple[int, int]:
+    """(aligned, total) for the boundaries between feet."""
+    starts = [start for start, _ in feet[1:]]
+    aligned = sum(1 for i in starts if 0 < i <= len(syllables) and syllables[i - 1].word_final)
+    return aligned, len(starts)
 
 
 def fit_pattern(
@@ -100,7 +122,9 @@ def fit_pattern(
         if run != target:
             if i >= len(values) and run < target and allow_short_final and feet:
                 feet.append((start, i))
-                return FootFit(meter, pattern, "", feet, exact=False, short_final=run)
+                aligned, total = _alignment(syllables, feet)
+                return FootFit(meter, pattern, "", feet, exact=False, short_final=run,
+                               aligned=aligned, boundaries=total)
             return None
         feet.append((start, i))
 
@@ -108,9 +132,12 @@ def fit_pattern(
         leftover = sum(values[i:])
         if allow_short_final:
             feet.append((i, len(values)))
-            return FootFit(meter, pattern, "", feet, exact=False, short_final=leftover)
+            aligned, total = _alignment(syllables, feet)
+            return FootFit(meter, pattern, "", feet, exact=False, short_final=leftover,
+                           aligned=aligned, boundaries=total)
         return None
-    return FootFit(meter, pattern, "", feet, exact=True)
+    aligned, total = _alignment(syllables, feet)
+    return FootFit(meter, pattern, "", feet, exact=True, aligned=aligned, boundaries=total)
 
 
 def candidate_fits(syllables: list[Syllable], allow_short_final: bool = True) -> list[FootFit]:
@@ -129,3 +156,7 @@ def candidate_fits(syllables: list[Syllable], allow_short_final: bool = True) ->
                 fits.append(fit)
     fits.sort(key=lambda f: (-f.score, len(f.feet)))
     return fits
+
+
+# Below this share of word-aligned boundaries a fit is arithmetic, not metre.
+WEAK_ALIGNMENT = 0.5

@@ -13,6 +13,7 @@ from .meters import (
     BENGALI_NAMES,
     FootFit,
     METERS,
+    WEAK_ALIGNMENT,
     candidate_fits,
     matra_sequence,
     total_matra,
@@ -38,7 +39,8 @@ class Scansion:
 
     @property
     def needs_review(self) -> bool:
-        return bool(self.flags) or not self.fits or not self.fits[0].exact
+        weak = bool(self.fits) and self.fits[0].alignment < WEAK_ALIGNMENT
+        return bool(self.flags) or not self.fits or not self.fits[0].exact or weak
 
     @property
     def best(self) -> FootFit | None:
@@ -64,7 +66,8 @@ class Scansion:
             fit = self.best
             head += counts + (
                 f"\n  best: {fit.pattern_name} "
-                f"({'exact' if fit.exact else f'short final {fit.short_final}'})"
+                f"({'exact' if fit.exact else f'short final {fit.short_final}'}"
+                f", word-alignment {fit.alignment:.0%})"
             )
         else:
             head += counts + "\n  best: no pattern fits"
@@ -109,6 +112,11 @@ def to_annotation(
         "meter": {
             "proposed": best.meter if best else None,
             "pattern": best.pattern_name if best else None,
+            # How much of the proposal is metre rather than arithmetic: the share
+            # of foot boundaries landing at word boundaries. A low value means the
+            # numbers add up and nothing else does.
+            "alignment": round(best.alignment, 2) if best else None,
+            "weak": bool(best and best.alignment < WEAK_ALIGNMENT),
             "confirmed": None,
             "override_reason": None,
         },

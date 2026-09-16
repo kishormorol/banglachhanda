@@ -5,6 +5,7 @@ from chhanda.meters import (
     AKKHARBRITTA,
     MATRABRITTA,
     SVARABRITTA,
+    WEAK_ALIGNMENT,
     candidate_fits,
     fit_pattern,
     matra,
@@ -111,3 +112,41 @@ def test_annotation_spans_point_into_the_original_text():
     record = to_annotation(text)
     start, end = record["syllables"][0]["span"]
     assert 0 <= start < end <= len(text)
+
+
+def word(closed=False, final=False):
+    s = syl(closed=closed, word_final=final)
+    return s
+
+
+def test_alignment_is_one_when_there_are_no_internal_boundaries():
+    fit = fit_pattern([syl() for _ in range(4)], SVARABRITTA, (4,))
+    assert fit is not None and fit.alignment == 1.0
+
+
+def test_word_aligned_feet_outrank_feet_that_slice_words():
+    """Bangla feet break where words break; arithmetic alone is not metre."""
+    # Eight syllables, word boundary exactly at the foot break.
+    aligned = [word(final=(i == 3)) for i in range(8)]
+    # Same length, but every word runs across the break.
+    sliced = [word(final=(i == 5)) for i in range(8)]
+    a = fit_pattern(aligned, SVARABRITTA, (4, 4))
+    b = fit_pattern(sliced, SVARABRITTA, (4, 4))
+    assert a is not None and b is not None
+    assert a.alignment == 1.0
+    assert b.alignment == 0.0
+    assert a.score > b.score
+
+
+def test_mid_word_boundaries_are_allowed_just_penalised():
+    """Guideline hard case 9 permits them, so they must still fit."""
+    sliced = [word(final=(i == 5)) for i in range(8)]
+    fit = fit_pattern(sliced, SVARABRITTA, (4, 4))
+    assert fit is not None and fit.exact
+    assert fit.alignment < WEAK_ALIGNMENT
+
+
+def test_annotation_exposes_alignment_and_weakness():
+    record = to_annotation("আমাদের ছোট নদী চলে বাঁকে বাঁকে")
+    assert record["meter"]["alignment"] is not None
+    assert record["meter"]["weak"] in (True, False)

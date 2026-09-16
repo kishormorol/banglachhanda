@@ -25,7 +25,7 @@ boundaries, and meter under `অক্ষরবৃত্ত`, `মাত্র�
 > [!IMPORTANT]
 > **This is not gold data.** Every label in `pilot.jsonl` was produced by a
 > rule-based scanner and has **not been checked by a human**. The scanner itself
-> flags **76% of these lines** as needing review, and the annotation guideline it
+> flags **80% of these lines** as needing review, and the annotation guideline it
 > implements has not yet been reviewed by a prosody specialist. Treat this as a
 > pre-annotation draft for annotators to correct — not as ground truth, and not as
 > a benchmark.
@@ -78,6 +78,7 @@ regular metre, he is where that would show.
   ],
   "feet": [[0, 4], [4, 7]],
   "meter": {"proposed": "akkharbritta", "pattern": "payar",
+            "alignment": 1.0, "weak": false,
             "confirmed": null, "override_reason": null},
   "needs_review": true,
   "provenance": {"source_url": "...", "revision": 1941668, "retrieved": "2026-09-16"}
@@ -119,12 +120,14 @@ the rules are not simply falling over on modern verse.
 - **No prosodic authority is pinned yet.** The matra rules follow the common
   textbook description; authorities differ on exactly the edge cases that decide
   inter-annotator agreement.
-- **Meter proposals are weak evidence.** The foot fitter is too permissive: under
-  svarabritta every syllable is 1 matra, so any line whose syllable count divides by
-  four "fits" exactly, and a deliberately unmetrical line still draws exact fits.
-  `meter.proposed` should be read as a starting guess for an annotator, never as a
-  classification. Tightening it — most obviously by requiring foot boundaries to
-  fall at word boundaries — is open work.
+- **Meter proposals rank, they do not classify.** Under svarabritta every syllable
+  is 1 matra, so any line whose syllable count divides by four fits exactly on the
+  arithmetic alone. Each fit now carries `meter.alignment`: the share of its foot
+  boundaries that land at word boundaries, which is where Bangla feet tend to
+  break. That reorders the candidates sensibly and marks 15% of pilot lines
+  `weak` (alignment below 0.5), but it still does not *reject* an unmetrical line —
+  a deliberately prosaic line can score 0.67. Read `meter.proposed` as a starting
+  guess for an annotator, never as a classification.
 - **Two poets.** Nothing here establishes how the rules behave on Nazrul (excluded
   on copyright grounds until 2037), on prose poetry, or on song lyrics.
 
