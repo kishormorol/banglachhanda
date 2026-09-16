@@ -1,0 +1,29 @@
+cff-version: 1.2.0
+title: "BanglaChhanda: a rule-based scanner and pilot corpus for Bangla verse"
+message: "If you use this software or dataset, please cite it as below."
+type: dataset
+authors:
+  - family-names: Morol
+    given-names: Md Kishor
+    alias: kishormorol
+repository-code: "https://github.com/kishormorol/banglachhanda"
+url: "https://huggingface.co/datasets/kishormorol/banglachhanda"
+abstract: >-
+  A rule-based scanner for Bangla verse and a pilot corpus for chhanda
+  annotation. The scanner derives syllable structure, matra counts and foot
+  divisions under akkharbritta, matrabritta and svarabritta, flagging the cases
+  where the rules are genuinely uncertain rather than guessing. The corpus is 81
+  public-domain Tagore poems from Bengali Wikisource with per-poem provenance,
+  and a 303-line pilot of pre-filled annotation records. The pilot's labels are
+  machine-produced and have not been checked by a human.
+keywords:
+  - Bangla
+  - Bengali
+  - prosody
+  - scansion
+  - meter
+  - poetry
+  - computational literary studies
+license: CC-BY-SA-4.0
+version: 0.1.0
+date-released: "2026-09-16"

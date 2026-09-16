@@ -111,6 +111,30 @@ pre-filled annotation record per line.
 The current pilot is 303 lines from 26 poems across four collections, and the
 scanner flags 73% of them for review — the honest state of the rules.
 
+## Citing this work
+
+This dataset and code are released under **CC BY-SA 4.0**, which *requires
+attribution*. If you use the scanner, the guideline or any part of the corpus in
+research or in a derived resource, cite it:
+
+```bibtex
+@misc{morol2026banglachhanda,
+  author       = {Morol, Md Kishor},
+  title        = {{BanglaChhanda}: a rule-based scanner and pilot corpus for
+                  {Bangla} verse},
+  year         = {2026},
+  version      = {0.1.0},
+  howpublished = {\url{https://huggingface.co/datasets/kishormorol/banglachhanda}},
+  note         = {Code: \url{https://github.com/kishormorol/banglachhanda}}
+}
+```
+
+Please also credit **Bengali Wikisource** for the transcriptions, as the CC BY-SA
+terms of the source text require. The poems themselves are public domain.
+
+If you correct or extend the annotations, CC BY-SA also requires you to release
+the result under the same licence.
+
 ## Related
 
 The annotation guideline this implements is in `docs/`; the flag names above
