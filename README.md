@@ -96,7 +96,26 @@ python3 -m venv .venv && .venv/bin/pip install pytest
 
 Requires Python 3.10+ (uses `X | None` annotations). No runtime dependencies.
 
+## Corpus
+
+`corpus/fetch_wikisource.py` pulls public-domain Tagore from Bengali Wikisource with
+per-poem provenance (page URL, revision id, retrieval date). `corpus/build_pilot.py`
+samples it poem-wise, stratified by closed-syllable density, and writes one
+pre-filled annotation record per line.
+
+```
+.venv/bin/python corpus/fetch_wikisource.py --collection "কণিকা (রবীন্দ্রনাথ ঠাকুর)" --limit 40
+.venv/bin/python corpus/build_pilot.py --target 300
+```
+
+The current pilot is 303 lines from 26 poems across four collections, and the
+scanner flags 73% of them for review — the honest state of the rules.
+
 ## Related
 
-The annotation guideline this implements is drafted separately; the flag names above
+The annotation guideline this implements is in `docs/`; the flag names above
 correspond to its numbered hard cases.
+
+The corpus and pilot are published as a dataset:
+**[huggingface.co/datasets/kishormorol/banglachhanda](https://huggingface.co/datasets/kishormorol/banglachhanda)**.
+The dataset card leads with the warning that none of its labels are human-checked.

@@ -5,8 +5,10 @@ keeps the page title, revision id and retrieval date, so any line in the pilot c
 be traced back to the exact revision it came from.
 
 Copyright: Rabindranath Tagore died in 1941, so the works are in the public domain
-in Bangladesh and India (life + 60) and in the US. The transcription is Wikisource's.
-Nothing here is redistributed; it is fetched into a local corpus for annotation.
+in Bangladesh and India (life + 60) and in the US. The transcriptions are Bengali
+Wikisource's. The fetched corpus IS redistributed, as a dataset under CC BY-SA 4.0
+in keeping with Wikisource's terms, which is why per-poem provenance is not
+optional here: every line has to name the revision it came from.
 
   python corpus/fetch_wikisource.py --collection "কণিকা (রবীন্দ্রনাথ ঠাকুর)" --limit 60
 """
