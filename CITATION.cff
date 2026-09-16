@@ -7,6 +7,14 @@ authors:
     given-names: Md Kishor
     alias: kishormorol
     orcid: "https://orcid.org/0000-0002-4468-8260"
+doi: "10.5281/zenodo.22798431"
+identifiers:
+  - type: doi
+    value: "10.5281/zenodo.22798431"
+    description: "Concept DOI — always resolves to the latest version"
+  - type: doi
+    value: "10.5281/zenodo.22798432"
+    description: "Version DOI — v0.1.0 specifically"
 repository-code: "https://github.com/kishormorol/banglachhanda"
 url: "https://huggingface.co/datasets/kishormorol/banglachhanda"
 abstract: >-

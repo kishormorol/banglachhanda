@@ -119,16 +119,20 @@ research or in a derived resource, cite it:
 
 ```bibtex
 @misc{morol2026banglachhanda,
-  author       = {Morol, Md Kishor},
-  orcid        = {0000-0002-4468-8260},
-  title        = {{BanglaChhanda}: a rule-based scanner and pilot corpus for
-                  {Bangla} verse},
-  year         = {2026},
-  version      = {0.1.0},
-  howpublished = {\url{https://huggingface.co/datasets/kishormorol/banglachhanda}},
-  note         = {Code: \url{https://github.com/kishormorol/banglachhanda}}
+  author    = {Morol, Md Kishor},
+  orcid     = {0000-0002-4468-8260},
+  title     = {{BanglaChhanda}: a rule-based scanner and pilot corpus for
+               {Bangla} verse},
+  year      = {2026},
+  publisher = {Zenodo},
+  doi       = {10.5281/zenodo.22798431},
+  url       = {https://doi.org/10.5281/zenodo.22798431}
 }
 ```
+
+That is the **concept DOI**: it always resolves to the newest version, which is
+what you want when citing the work in general. To pin the exact release you used,
+cite the version DOI instead — v0.1.0 is [`10.5281/zenodo.22798432`](https://doi.org/10.5281/zenodo.22798432).
 
 Author ORCID: [0000-0002-4468-8260](https://orcid.org/0000-0002-4468-8260).
 
