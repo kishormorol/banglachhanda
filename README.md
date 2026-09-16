@@ -46,8 +46,39 @@ plausibly go either way, the scanner sets a flag and carries on rather than gues
 | `y_phala_gemination_check` | y-phala may geminate; guideline hard case 3 says a human decides |
 | `stranded_onset` | consonants with no syllable to attach to — usually malformed input |
 
-`scan(line).needs_review` is true when anything is flagged or no foot pattern fits.
-Route those lines to a human first; they are where the rules are earning or failing.
+`scan(line).needs_review` is true when anything is flagged, no foot pattern fits, or
+the best fit is weakly aligned. Route those lines to a human first; they are where
+the rules are earning or failing.
+
+## Meter proposals rank, they do not classify
+
+Under svarabritta every syllable is 1 matra, so any line whose syllable count
+divides by four fits exactly on the arithmetic alone — a deliberately unmetrical
+line drew exact fits under two meters. Each fit therefore carries `alignment`: the
+share of its foot boundaries landing at word boundaries, which is where Bangla feet
+tend to break. Candidates rank on it, and a fit below 0.5 is marked `weak`.
+
+Mid-word boundaries stay legal (guideline hard case 9); they just score lower. This
+reranks rather than rejects — the invented line still fits, at 0.67. Rejecting
+non-metrical verse properly needs poem-level consistency, which is open work.
+
+## Rhyme
+
+`chhanda.rhyme` works over the same syllable layer. Bangla rhyme is phonological,
+so `শ`/`ষ`/`স` fold to one sibilant, `ণ`/`ন` to one nasal, and vowel length is not
+contrastive — matching written characters would both miss real rhymes and invent
+false ones.
+
+```python
+>>> from chhanda.rhyme import rhymes, rhyme_scheme
+>>> rhymes("করে", "পড়ে")          # different onsets, rhyme on -e
+True
+>>> rhyme_scheme(["বুকে", "ভুলি", "মুখে", "তুলি"]).pattern
+'abab'
+```
+
+An unrhymed line is labelled `-`, not a fresh letter: a rhyme class of one would
+make free verse look like an elaborate scheme.
 
 ## Known limitations
 
@@ -79,9 +110,11 @@ exists to settle.
 ```
 chhanda/script.py     text -> orthographic units (aksharas); mechanical, no judgement
 chhanda/syllable.py   units -> spoken syllables; schwa deletion and conjunct splitting
-chhanda/meters.py     matra values and foot fitting per meter
+chhanda/meters.py     matra values, foot fitting, word-boundary alignment
+chhanda/rhyme.py      phonological rhyme keys and scheme labelling
 chhanda/scan.py       scan() and to_annotation()
-tests/                28 tests, all rule-application cases
+corpus/               Wikisource fetcher, pilot builder, Hub sync
+tests/                49 tests
 ```
 
 No test asserts the "correct" meter of a canonical poem. Until the guideline is signed
@@ -108,8 +141,18 @@ pre-filled annotation record per line.
 .venv/bin/python corpus/build_pilot.py --target 300
 ```
 
-The current pilot is 303 lines from 26 poems across four collections, and the
-scanner flags 73% of them for review — the honest state of the rules.
+The corpus is 153 poems / 7,009 lines from two poets, and the current pilot is 316
+lines from 19 poems — 191 Jibanananda, 125 Tagore. The scanner flags 80% of them
+for review, which is the honest state of the rules rather than a defect to tune
+away. Review rate barely differs between the two poets (76% vs 74% before weak
+fits were counted), so the rules are not simply falling over on looser verse.
+
+**A poet is added only once the copyright term has expired.** `attribution()`
+resolves author and rights per collection from the `POETS` table and raises for an
+unlisted poet or one still in copyright — a wrong rights line would propagate into
+every record and then get redistributed. Kazi Nazrul Islam (d. 1976) is out until
+2037 under life + 60; Wikisource carries his pre-1931 books as US public domain,
+which is not enough here. A test says so, so adding him means deleting it.
 
 ## Citing this work
 
